@@ -1,0 +1,66 @@
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ExcelToCsvConverter {
+    public static void main(String[] args) {
+        try {
+            InputStream excelFile = new FileInputStream("input.xlsx");
+            Workbook workbook = new XSSFWorkbook(excelFile);
+            Sheet sheet = workbook.getSheetAt(0);
+
+            List<List<String>> csvData = new ArrayList<>();
+
+            for (int i = 0; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                List<String> rowData = new ArrayList<>();
+
+                for (int j = 0; j < row.getLastCellNum(); j++) {
+                    Cell cell = row.getCell(j);
+                    String cellValue = "";
+
+                    if (cell != null) {
+                        cellValue = cell.toString();
+                    }
+
+                    rowData.add(cellValue);
+                }
+
+                csvData.add(rowData);
+            }
+
+            workbook.close();
+
+            // Write CSV file
+            writeCsvFile(csvData, "output.csv");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void writeCsvFile(List<List<String>> csvData, String csvFileName) {
+        try {
+            FileWriter csvWriter = new FileWriter(csvFileName);
+
+            for (List<String> rowData : csvData) {
+                for (int i = 0; i < rowData.size(); i++) {
+                    csvWriter.append(rowData.get(i));
+                    if (i < rowData.size() - 1) {
+                        csvWriter.append(",");
+                    }
+                }
+                csvWriter.append("\n");
+            }
+
+            csvWriter.flush();
+            csvWriter.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
